@@ -1,0 +1,16 @@
+# vim:ft=ansible:
+---
+- hosts: webservers
+  vars:
+    http_port: 80
+  remote_user: root
+  tasks:
+  - name: get the username running the deploy
+    local_action: command whoami
+    register: username_on_the_host
+  - name: install all the internets
+    copy: src=./files/sshd_config dest=/etc/ssh/sshd_config
+  #- name: Restart sshd
+  #  service: name=ssh state=restarted
+  - name: add ssh key
+    authorized_key: user=root key="{{ lookup('file', '/home/'+username_on_the_host+'/.ssh/id_rsa.pub') }}"  manage_dir=yes
